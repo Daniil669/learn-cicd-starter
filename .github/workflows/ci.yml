@@ -13,5 +13,5 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: "1.26.0"
-    - name: Go Version Check
-      run: go version
+    - name: Test Auth (GetApiKey)
+      run: go test ./...
