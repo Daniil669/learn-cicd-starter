@@ -8,6 +8,10 @@ import (
 	"net/http"
 	"os"
 
+	// "regexp"
+	// "strings"
+	"time"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
@@ -23,6 +27,18 @@ type apiConfig struct {
 
 //go:embed static/*
 var staticFiles embed.FS
+
+// var portRegex = regexp.MustCompile(`^:?[0-9]+$`)
+
+// func sanitizePort(p string) string {
+// 	p = strings.ReplaceAll(p, "\n", "")
+// 	p = strings.ReplaceAll(p, "\r", "")
+// 	if portRegex.MatchString(p) {
+// 		return p
+// 	}
+// 	// If the input looks fishy, return a generic safe value or an error
+// 	return "invalid_port"
+// }
 
 func main() {
 	err := godotenv.Load(".env")
@@ -89,10 +105,17 @@ func main() {
 
 	router.Mount("/v1", v1Router)
 	srv := &http.Server{
-		Addr:    ":" + port,
-		Handler: router,
+		Addr:              ":" + port,
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 
-	log.Printf("Serving on port: %s\n", port)
+	// safePort := sanitizePort(port)
+
+	// log.Printf("Serving on port: %q\n", safePort)
+	log.Printf("Starting server")
 	log.Fatal(srv.ListenAndServe())
 }
